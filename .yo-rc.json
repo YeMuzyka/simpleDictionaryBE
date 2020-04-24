@@ -1,0 +1,37 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.yevhenii.muzyka"
+    },
+    "jhipsterVersion": "6.8.0",
+    "applicationType": "microservice",
+    "baseName": "simpleDictionary",
+    "packageName": "com.yevhenii.muzyka",
+    "packageFolder": "com/yevhenii/muzyka",
+    "serverPort": "8081",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "gradle",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "YWQxZmZiMDg0YjNiMTIxMzExYzY4NzhkNmE3NDg0NGVkOWRmYmJkMzBmYWVjZThlMWM4NDIwYWJhMTEwNzY4ZjFiM2M0YjkyZGVhMWQzNTgyZjlhMGIwMTQxNWM4NzY4Y2NiM2I2NTE1MDMzMzcxYmQ2NDg5N2ZmMzcwNWUwZTY=",
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1587687970569,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "clientPackageManager": "npm",
+    "blueprints": [],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}
