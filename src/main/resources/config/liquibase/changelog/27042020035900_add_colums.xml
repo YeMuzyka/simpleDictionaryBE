@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="27042020035900-1" author="yevheniiMuzyka">
+        <createTable tableName="english_words">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_character" type="varchar(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="word" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_date" type="timestamp">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="27042020035900-2" author="yevheniiMuzyka">
+        <createTable tableName="russian_words">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="first_character" type="varchar(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="word" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_date" type="timestamp">
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="27042020035900-3" author="yevheniiMuzyka">
+        <createTable tableName="english_words_russian_words">
+            <column name="english_words_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="russian_words_id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="27042020035900-4" author="yevheniiMuzyka">
+        <addForeignKeyConstraint baseTableName="english_words_russian_words"
+                                 baseColumnNames="english_words_id"
+                                 constraintName="fk_english_words"
+                                 referencedTableName="english_words"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+    <changeSet id="27042020035900-5" author="yevheniiMuzyka">
+        <addForeignKeyConstraint baseTableName="english_words_russian_words"
+                                 baseColumnNames="russian_words_id"
+                                 constraintName="fk_russian_words"
+                                 referencedTableName="russian_words"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>

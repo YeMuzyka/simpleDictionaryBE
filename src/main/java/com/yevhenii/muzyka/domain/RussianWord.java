@@ -1,13 +1,12 @@
 package com.yevhenii.muzyka.domain;
 
-import org.springframework.data.domain.Persistable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.GenerationType;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Column;
 import javax.persistence.ManyToMany;
 import javax.persistence.FetchType;
@@ -18,17 +17,14 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.isNull;
-
 @Entity
 @Table(name = "russian_words")
-public class RussianWord implements Serializable, Persistable<Long> {
+public class RussianWord implements Serializable {
 
     private static final long serialVersionUID = 2L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "first_character", nullable = false)
@@ -45,6 +41,7 @@ public class RussianWord implements Serializable, Persistable<Long> {
     private Instant updateDate;
 
     @ManyToMany(mappedBy = "russianWords", fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("russianWords")
     private Set<EnglishWord> englishWords = new HashSet<>();
 
     public RussianWord() {
@@ -59,14 +56,8 @@ public class RussianWord implements Serializable, Persistable<Long> {
         this.englishWords = englishWords;
     }
 
-    @Override
     public Long getId() {
         return id;
-    }
-
-    @Override
-    public boolean isNew() {
-        return isNull(this.id);
     }
 
     public void setId(Long id) {

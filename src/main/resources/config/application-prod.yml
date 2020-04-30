@@ -34,8 +34,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/simpleDictionary
-    username: simpleDictionary
-    password:
+    username: simpleDictionaryAdmin
+    password: simpleDictionaryAdmin
     hikari:
       poolName: Hikari
       auto-commit: false
