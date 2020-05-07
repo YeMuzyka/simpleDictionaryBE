@@ -2,6 +2,7 @@ package com.yevhenii.muzyka.web.rest;
 
 import com.yevhenii.muzyka.domain.EnglishWord;
 import com.yevhenii.muzyka.service.EnglishWordService;
+import com.yevhenii.muzyka.web.rest.dto.EnglishWordDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+
+import static com.yevhenii.muzyka.domain.EnglishWord.toEnglishWordDto;
 
 @RestController
 @RequestMapping("/api")
@@ -32,35 +36,41 @@ public class EnglishWordController {
     }
 
     @PostMapping("/english-word")
-    public ResponseEntity<EnglishWord> createNewEnglsihWord(@RequestBody EnglishWord newEnglishWord)
+    public ResponseEntity<EnglishWordDto> createNewEnglsihWord(@RequestBody EnglishWordDto newEnglishWord)
         throws URISyntaxException {
-        EnglishWord result = englishWordService.createEnglishWord(newEnglishWord);
+        EnglishWordDto result = englishWordService.createEnglishWord(newEnglishWord);
         return ResponseEntity.created(new URI("/api/english-word/" + result.getId()))
-            .body(result);
+                             .body(result);
     }
 
     @PutMapping("/english-word/{id}")
-    public ResponseEntity<EnglishWord> updateEnglishWord(@PathVariable Long id,
-                                                         @RequestBody EnglishWord updatedEnglishWord) {
+    public ResponseEntity<EnglishWordDto> updateEnglishWord(@PathVariable Long id,
+                                                         @RequestBody EnglishWordDto updatedEnglishWord) {
         return ResponseEntity.ok(englishWordService.updateEnglishWord(id, updatedEnglishWord));
     }
 
     @GetMapping("/english-word/{word}")
-    public ResponseEntity<EnglishWord> getEnglishWordByWord(@PathVariable String word) {
-        return ResponseEntity.of(englishWordService.getEnglishWordByWord(word));
+    public ResponseEntity<EnglishWordDto> getEnglishWordByWord(@PathVariable String word) {
+        Optional<EnglishWord> englishWordByWord = englishWordService.getEnglishWordByWord(word);
+        if (englishWordByWord.isEmpty()) {
+            return ResponseEntity.of(Optional.empty());
+        }
+        return ResponseEntity.of(Optional.of(toEnglishWordDto(englishWordByWord.get())));
     }
 
     @GetMapping("/english-word/find/first-character/{firstCharacter}")
-    public ResponseEntity<List<EnglishWord>> findAllByFirstCharacter(@PathVariable String firstCharacter,
+    public ResponseEntity<List<EnglishWordDto>> findAllByFirstCharacter(@PathVariable String firstCharacter,
                                                                      Pageable pageable) {
-        Page<EnglishWord> page = englishWordService.findAllByFirstCharacter(firstCharacter, pageable);
+        Page<EnglishWordDto> page = englishWordService.findAllByFirstCharacter(firstCharacter, pageable);
         return ResponseEntity.ok(page.getContent());
     }
 
     @GetMapping("/english-word/find/create-date/{createDate}")
-    public ResponseEntity<List<EnglishWord>> findAllByFirstCharacter(@PathVariable Instant createDate,
-                                                                     Pageable pageable) {
-        return ResponseEntity.ok(englishWordService.findAllByCreateDateIsLessThanEqual(createDate, pageable).getContent());
+    public ResponseEntity<List<EnglishWordDto>> findAllByCreateDateIsLessThanEqual(@PathVariable Instant createDate,
+                                                                                Pageable pageable) {
+        return ResponseEntity.ok(englishWordService
+                                .findAllByCreateDateIsLessThanEqual(createDate, pageable)
+                                .getContent());
     }
 
     @DeleteMapping("/english-word/word/{word}")
@@ -88,7 +98,7 @@ public class EnglishWordController {
     }
 
     @GetMapping("/english-word/find/word-containing/{containing}")
-    public ResponseEntity<List<EnglishWord>> findAllByWordContaining(@PathVariable String containing,
+    public ResponseEntity<List<EnglishWordDto>> findAllByWordContaining(@PathVariable String containing,
                                                                      Pageable pageable) {
         return ResponseEntity.ok(englishWordService.findAllByWordContaining(containing, pageable).getContent());
     }

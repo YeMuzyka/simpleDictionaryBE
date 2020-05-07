@@ -11,6 +11,8 @@ public final class ErrorConstants {
     public static final URI CONSTRAINT_VIOLATION_TYPE = URI.create(PROBLEM_BASE_URL + "/constraint-violation");
     public static final String ENGLISH_WORD_ALREADY_EXISTS = "english.word.exists";
     public static final String ENGLISH_WORD_NOT_FOUND = "english.word.not.found";
+    public static final String RUSSIAN_WORD_NOT_FOUND = "russian.word.not.found";
+    public static final String RUSSIAN_WORD_ALREADY_EXISTS = "russian.word.exists";
 
     private ErrorConstants() {
     }

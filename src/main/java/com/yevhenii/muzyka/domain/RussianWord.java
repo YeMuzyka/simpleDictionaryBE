@@ -1,6 +1,6 @@
 package com.yevhenii.muzyka.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.yevhenii.muzyka.web.rest.dto.RussianWordDto;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -41,19 +41,31 @@ public class RussianWord implements Serializable {
     private Instant updateDate;
 
     @ManyToMany(mappedBy = "russianWords", fetch = FetchType.EAGER)
-    @JsonIgnoreProperties("russianWords")
     private Set<EnglishWord> englishWords = new HashSet<>();
 
     public RussianWord() {
 
     }
 
-    public RussianWord(@Size(max = 1) String firstCharacter, String word, Instant createDate, Instant updateDate, Set<EnglishWord> englishWords) {
+    public RussianWord(@Size(max = 1) String firstCharacter,
+                       String word,
+                       Instant createDate,
+                       Instant updateDate,
+                       Set<EnglishWord> englishWords) {
         this.firstCharacter = firstCharacter;
         this.word = word;
         this.createDate = createDate;
         this.updateDate = updateDate;
         this.englishWords = englishWords;
+    }
+
+    public static RussianWordDto toRussianWordDto(RussianWord russianWord) {
+        return new RussianWordDto(russianWord.getId(),
+                                  russianWord.getFirstCharacter(),
+                                  russianWord.getWord(),
+                                  russianWord.getCreateDate(),
+                                  russianWord.getUpdateDate(),
+                                  russianWord.getEnglishWords());
     }
 
     public Long getId() {

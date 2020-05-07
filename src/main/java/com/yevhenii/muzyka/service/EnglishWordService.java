@@ -3,9 +3,11 @@ package com.yevhenii.muzyka.service;
 import com.yevhenii.muzyka.domain.EnglishWord;
 import com.yevhenii.muzyka.domain.RussianWord;
 import com.yevhenii.muzyka.repository.EnglishWordRepository;
+import com.yevhenii.muzyka.web.rest.dto.EnglishWordDto;
 import com.yevhenii.muzyka.web.rest.errors.BadRequestAlertException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +17,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.yevhenii.muzyka.domain.EnglishWord.toEnglishWordDto;
 import static com.yevhenii.muzyka.web.rest.errors.ErrorConstants.ENGLISH_WORD_ALREADY_EXISTS;
 import static com.yevhenii.muzyka.web.rest.errors.ErrorConstants.ENGLISH_WORD_NOT_FOUND;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -34,7 +38,7 @@ public class EnglishWordService {
         this.russianWordService = russianWordService;
     }
 
-    public EnglishWord createEnglishWord(EnglishWord newEnglishWord) {
+    public EnglishWordDto createEnglishWord(EnglishWordDto newEnglishWord) {
         Optional<EnglishWord> englishWordByWord = getEnglishWordByWord(newEnglishWord.getWord());
 
         if (englishWordByWord.isEmpty()) {
@@ -46,7 +50,8 @@ public class EnglishWordService {
             createdEnglishWord.setWord(newEnglishWord.getWord());
             createdEnglishWord.setCreateDate(Instant.now());
             createdEnglishWord.setRussianWords(newRussianWords);
-            return englishWordRepository.save(createdEnglishWord);
+            createdEnglishWord = englishWordRepository.save(createdEnglishWord);
+            return toEnglishWordDto(createdEnglishWord);
         }
 
         throw new BadRequestAlertException(
@@ -55,7 +60,7 @@ public class EnglishWordService {
             ENGLISH_WORD_ALREADY_EXISTS);
     }
 
-    public EnglishWord updateEnglishWord(Long englishWordId, EnglishWord updatedEnglishWord) {
+    public EnglishWordDto updateEnglishWord(Long englishWordId, EnglishWordDto updatedEnglishWord) {
         Optional<EnglishWord> englishWordByIdOptional = englishWordRepository.findById(englishWordId);
 
         if (englishWordByIdOptional.isEmpty()) {
@@ -65,13 +70,16 @@ public class EnglishWordService {
         }
 
         EnglishWord englishWord = englishWordByIdOptional.get();
-        getEnglishWordByWord(updatedEnglishWord.getWord())
-            .ifPresent((foundEnglishWord) -> {
+        Optional<EnglishWord> englishWordByUpdatedWordOptional = getEnglishWordByWord(updatedEnglishWord.getWord());
+        if (englishWordByUpdatedWordOptional.isPresent()) {
+            EnglishWord englishWordByUpdatedWord = englishWordByUpdatedWordOptional.get();
+            if (!englishWord.getId().equals(englishWordByUpdatedWord.getId())) {
                 throw new BadRequestAlertException(
-                    String.format("Englsih word with word %s already exists", foundEnglishWord.getWord()),
+                    String.format("Englsih word with word %s already exists", englishWordByUpdatedWord.getWord()),
                     ENGLISH_ENTITY_KEY,
                     ENGLISH_WORD_ALREADY_EXISTS);
-            });
+            }
+        }
 
         Set<RussianWord> russianWords = russianWordService.updateOrCreateRussianWords(
             updatedEnglishWord.getRussianWords());
@@ -80,19 +88,28 @@ public class EnglishWordService {
         englishWord.setWord(updatedEnglishWord.getWord());
         englishWord.setUpdateDate(Instant.now());
         englishWord.setRussianWords(russianWords);
-        return englishWordRepository.save(englishWord);
+        englishWord = englishWordRepository.save(englishWord);
+        return toEnglishWordDto(englishWord);
     }
 
     public Optional<EnglishWord> getEnglishWordByWord(String word) {
         return englishWordRepository.findByWord(word);
     }
 
-    public Page<EnglishWord> findAllByFirstCharacter(String firstCharacter, Pageable pageable) {
-        return englishWordRepository.findAllByFirstCharacter(firstCharacter, pageable);
+    public Page<EnglishWordDto> findAllByFirstCharacter(String firstCharacter, Pageable pageable) {
+        Page<EnglishWord> allByFirstCharacter = englishWordRepository.findAllByFirstCharacter(firstCharacter, pageable);
+        List<EnglishWordDto> convertedList = allByFirstCharacter.get()
+                                                                .map(this::convertToDto)
+                                                                .collect(toList());
+        return new PageImpl<>(convertedList, pageable, allByFirstCharacter.getTotalElements());
     }
 
-    public Page<EnglishWord> findAllByCreateDateIsLessThanEqual(Instant instant, Pageable pageable) {
-        return englishWordRepository.findAllByCreateDateIsLessThanEqual(instant, pageable);
+    public Page<EnglishWordDto> findAllByCreateDateIsLessThanEqual(Instant instant, Pageable pageable) {
+        Page<EnglishWord> allByCreateDate = englishWordRepository.findAllByCreateDateIsLessThanEqual(instant, pageable);
+        List<EnglishWordDto> convertedListDto = allByCreateDate.get()
+                                                               .map(this::convertToDto)
+                                                               .collect(toList());
+        return new PageImpl<>(convertedListDto, pageable, allByCreateDate.getTotalElements());
     }
 
     public void deleteByWord(String word) {
@@ -111,8 +128,16 @@ public class EnglishWordService {
         englishWordRepository.deleteAll();
     }
 
-    public Page<EnglishWord> findAllByWordContaining(String containing, Pageable pageable) {
-        return englishWordRepository.findAllByWordContaining(containing, pageable);
+    public Page<EnglishWordDto> findAllByWordContaining(String containing, Pageable pageable) {
+        Page<EnglishWord> allByWordContaining = englishWordRepository.findAllByWordContaining(containing, pageable);
+        List<EnglishWordDto> convertedListDto = allByWordContaining.get()
+                                                                   .map(this::convertToDto)
+                                                                   .collect(toList());
+        return new PageImpl<>(convertedListDto, pageable, allByWordContaining.getTotalElements());
+    }
+
+    private EnglishWordDto convertToDto(EnglishWord englishWord) {
+        return toEnglishWordDto(englishWord);
     }
 
 }
