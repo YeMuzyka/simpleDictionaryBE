@@ -17,6 +17,10 @@ public class EnglishWordDto {
     @JsonIgnoreProperties("englishWords")
     private Set<RussianWord> russianWords = new HashSet<>();
 
+    public EnglishWordDto() {
+
+    }
+
     public EnglishWordDto(Long id,
                           String firstCharacter,
                           String word,

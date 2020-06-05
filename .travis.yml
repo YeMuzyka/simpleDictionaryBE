@@ -1,0 +1,8 @@
+language: java
+jdk:
+  - openjdk11
+install: true
+script:
+  - set -e
+  - "./gradlew --no-daemon --refresh-dependencies clean check test"
+  - "./gradlew -x test -Pprod --no-daemon bootJar"
